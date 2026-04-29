@@ -45,4 +45,28 @@ public class SecureManager {
         }
     }
 
+    public byte[] encrypt(String plainText) {
+        try {
+            return cipher.doFinal(plainText.getBytes("UTF-8"));
+        } catch (Exception e) {
+            throw new RuntimeException("Error al cifrar mensaje", e);
+        }
+    }
+
+    public String decrypt(byte[] cipherBytes) {
+        try {
+            return new String(decipher.doFinal(cipherBytes), "UTF-8");
+        } catch (Exception e) {
+            throw new RuntimeException("Error al descifrar mensaje", e);
+        }
+    }
+
+    public byte[] getKeyBytes() {
+        return secretKey.getEncoded();
+    }
+
+    public void printEncrypted(byte[] cipherBytes) {
+        System.out.println("[DEBUG] Cifrado (Base64): "
+                + Base64.getEncoder().encodeToString(cipherBytes));
+    }
 }
