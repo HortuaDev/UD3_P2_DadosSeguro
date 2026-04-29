@@ -9,4 +9,8 @@ public class SecureManager {
 
     private static final String ALGORITHM = "AES";
 
+    private final Cipher cipher;
+    private final Cipher decipher;
+    private final SecretKey secretKey;
+
 }
