@@ -25,7 +25,7 @@ public class ClientHandler extends Thread {
             rawOut.flush();
             System.out.println("[INFO] Clave AES enviada al cliente.");
 
-            jugador = new Jugador("?", socket);
+            jugador = new Jugador("?", socket, gameManager.getSecure());
             String primerMensaje = jugador.getIn().readLine();
 
             if (primerMensaje == null || !primerMensaje.startsWith("NOMBRE:")) {
@@ -35,7 +35,7 @@ public class ClientHandler extends Thread {
             }
 
             String nombre = primerMensaje.substring(7).trim();
-            jugador = new Jugador(nombre, socket);
+            jugador = new Jugador(nombre, socket, gameManager.getSecure());
 
             if (!gameManager.agregarJugador(jugador)) {
                 jugador.enviar("ERROR:Sala llena o partida en curso");
