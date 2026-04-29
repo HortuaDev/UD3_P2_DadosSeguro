@@ -1,34 +1,27 @@
 package net.salesianos.servidor;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import net.salesianos.utils.SecureManager;
+
+import java.io.*;
 import java.net.Socket;
-import java.io.IOException;
 
 public class Jugador {
 
     private String nombre;
     private int puntuacion;
     private Socket socket;
-    private PrintWriter out;
-    private BufferedReader in;
 
-    public Jugador(String nombre, Socket socket) throws IOException {
+    private DataOutputStream out;
+    private DataInputStream in;
+    private SecureManager secure;
+
+    public Jugador(String nombre, Socket socket, SecureManager secure) throws IOException {
         this.nombre = nombre;
         this.puntuacion = 0;
         this.socket = socket;
-        this.out = new PrintWriter(socket.getOutputStream(), true);
-        this.in = new BufferedReader(
-                new InputStreamReader(socket.getInputStream()));
-    }
-
-    public void enviar(String mensaje) {
-        out.println(mensaje);
-    }
-
-    public void sumarPuntos(int puntos) {
-        this.puntuacion += puntos;
+        this.secure = secure;
+        this.out = new DataOutputStream(socket.getOutputStream());
+        this.in = new DataInputStream(socket.getInputStream());
     }
 
     public void cerrar() {
@@ -48,12 +41,15 @@ public class Jugador {
         return puntuacion;
     }
 
-    public PrintWriter getOut() {
+    public DataOutputStream getOut() {
         return out;
     }
 
-    public BufferedReader getIn() {
+    public DataInputStream getIn() {
         return in;
     }
 
+    public void sumarPuntos(int puntos) {
+        this.puntuacion += puntos;
+    }
 }
