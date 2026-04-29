@@ -1,29 +1,39 @@
 package net.salesianos.cliente;
 
-import java.io.BufferedReader;
+import net.salesianos.utils.SecureManager;
+
+import java.io.DataInputStream;
+import java.io.IOException;
 
 public class EscuchadorServidor extends Thread {
 
-    private final BufferedReader in;
+    private final DataInputStream in;
+    private final SecureManager secure;
 
     private volatile boolean partidaTerminada = false;
     private volatile boolean esMiTurno = false;
 
-    public EscuchadorServidor(BufferedReader in) {
+    public EscuchadorServidor(DataInputStream in, SecureManager secure) {
         this.in = in;
+        this.secure = secure;
         setDaemon(true);
     }
 
     @Override
     public void run() {
         try {
-            String mensaje;
-            while ((mensaje = in.readLine()) != null) {
+            while (true) {
+                int length = in.readInt();
+                if (length <= 0)
+                    break;
+                byte[] cipherBytes = new byte[length];
+                in.readFully(cipherBytes);
+                String mensaje = secure.decrypt(cipherBytes);
                 procesarMensaje(mensaje);
             }
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             if (!partidaTerminada) {
-                System.out.println("Conexión con servidor perdida");
+                System.out.println("Conexión con servidor perdida.");
             }
         }
         partidaTerminada = true;
