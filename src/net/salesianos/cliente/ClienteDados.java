@@ -1,9 +1,8 @@
 package net.salesianos.cliente;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import net.salesianos.utils.SecureManager;
+
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -20,22 +19,27 @@ public class ClienteDados {
 
             System.out.println("Conectado al servidor");
 
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream()));
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+            DataInputStream in = new DataInputStream(socket.getInputStream());
+
+            int keyLength = in.readInt();
+            byte[] keyBytes = new byte[keyLength];
+            in.readFully(keyBytes);
+            SecureManager secure = new SecureManager(keyBytes);
+            System.out.println("[INFO] Clave AES recibida y configurada.");
+
+            EscuchadorServidor escuchador = new EscuchadorServidor(in, secure);
+            escuchador.start();
 
             System.out.print("Tu nombre: ");
             String nombre = scanner.nextLine().trim();
-            out.println("NOMBRE:" + nombre);
-
-            EscuchadorServidor escuchador = new EscuchadorServidor(in);
-            escuchador.start();
+            sendEncrypted(out, secure, "NOMBRE:" + nombre);
 
             while (!escuchador.isPartidaTerminada()) {
                 if (escuchador.isEsMiTurno()) {
                     scanner.nextLine();
                     escuchador.setEsMiTurno(false);
-                    out.println("LANZAR");
+                    sendEncrypted(out, secure, "LANZAR");
                 } else {
                     Thread.sleep(100);
                 }
@@ -52,4 +56,11 @@ public class ClienteDados {
         }
     }
 
+    static void sendEncrypted(DataOutputStream out, SecureManager secure, String msg)
+            throws IOException {
+        byte[] cipherBytes = secure.encrypt(msg);
+        out.writeInt(cipherBytes.length);
+        out.write(cipherBytes);
+        out.flush();
+    }
 }
