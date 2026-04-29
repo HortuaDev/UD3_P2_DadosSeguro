@@ -26,7 +26,7 @@ public class ClientHandler extends Thread {
             System.out.println("[INFO] Clave AES enviada al cliente.");
 
             jugador = new Jugador("?", socket, gameManager.getSecure());
-            String primerMensaje = jugador.getIn().readLine();
+            String primerMensaje = jugador.recibirMensaje();
 
             if (primerMensaje == null || !primerMensaje.startsWith("NOMBRE:")) {
                 jugador.enviar("ERROR:Se esperaba NOMBRE:<nombre>");
@@ -58,7 +58,7 @@ public class ClientHandler extends Thread {
             }
 
             String mensaje;
-            while ((mensaje = jugador.getIn().readLine()) != null) {
+            while ((mensaje = jugador.recibirMensaje()) != null) {
                 if (mensaje.equals("LANZAR")) {
                     gameManager.procesarLanzamiento(jugador);
                 }
