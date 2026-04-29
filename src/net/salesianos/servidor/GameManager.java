@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import net.salesianos.utils.SecureManager;
+
 public class GameManager {
 
     public static final int MIN_JUGADORES = 2;
@@ -15,6 +17,8 @@ public class GameManager {
     private int turnoActual = 0;
     private boolean partidaEnCurso = false;
     private final Random random = new Random();
+
+    private final SecureManager secure = new SecureManager();
 
     public synchronized boolean agregarJugador(Jugador jugador) {
         if (jugadores.size() >= MAX_JUGADORES || partidaEnCurso)
@@ -235,5 +239,11 @@ public class GameManager {
             j.cerrar();
         jugadores.clear();
         partidaEnCurso = false;
+    }
+
+    // Metodo Secure
+
+    public SecureManager getSecure() {
+        return secure;
     }
 }
