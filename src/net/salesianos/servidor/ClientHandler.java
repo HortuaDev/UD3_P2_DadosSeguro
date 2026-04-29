@@ -1,5 +1,7 @@
 package net.salesianos.servidor;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 
 public class ClientHandler extends Thread {
@@ -16,6 +18,13 @@ public class ClientHandler extends Thread {
     @Override
     public void run() {
         try {
+            DataOutputStream rawOut = new DataOutputStream(socket.getOutputStream());
+            byte[] keyBytes = gameManager.getSecure().getKeyBytes();
+            rawOut.writeInt(keyBytes.length);
+            rawOut.write(keyBytes);
+            rawOut.flush();
+            System.out.println("[INFO] Clave AES enviada al cliente.");
+
             jugador = new Jugador("?", socket);
             String primerMensaje = jugador.getIn().readLine();
 
@@ -55,7 +64,7 @@ public class ClientHandler extends Thread {
                 }
             }
 
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             System.out.println("Conexión perdida: "
                     + (jugador != null ? jugador.getNombre() : "desconocido"));
         } catch (InterruptedException e) {
